@@ -1,0 +1,5 @@
+flask:
+  image: flask-app
+
+nginx:
+  image: nginx-app
