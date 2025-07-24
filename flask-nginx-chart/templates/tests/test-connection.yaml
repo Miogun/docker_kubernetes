@@ -1,9 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include \"flask-nginx-chart.fullname\" . }}-test-connection"
-  labels:
-    {{ include "flask-nginx-chart.labels" . | nindent 4 }}
+  name: "flask-nginx-test-connection"
   annotations:
     "helm.sh/hook": test
 spec:
@@ -12,5 +10,5 @@ spec:
       image: busybox
       command: ["wget"]
       args:
-        - "http://{{ include \"flask-nginx-chart.fullname\" . }}:{{ .Values.service.port }}"
+        - "http://flask-nginx-flask:5000"
   restartPolicy: Never

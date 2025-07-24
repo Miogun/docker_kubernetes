@@ -1,21 +1,34 @@
+name: Deploy to Azure Kubernetes Service
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - name: Azure 로그인
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Push changes
-        run: |
-          git config user.email "cloudyshin1@gmail.com"
-          git config user.name "Miogun"
-          git remote set-url origin git@github.com:Miogun/docker_kubernetes.git
-          git push origin main
+      - name: Azure AKS context 설정
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: aks-rg
+          cluster-name: aks-cluster
 
+      - name: Helm 설치
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Helm chart 배포
+        run: |
+          helm upgrade --install flask-nginx ./flask-nginx-chart
